@@ -86,60 +86,39 @@ def solution1(inp_mat:list[tuple[int,list[int]]])->int:
                         break
 
       return res
-print(len(calibrations))
-print(solution1(calibrations))
+
+print(f"The answer for Part1: {solution1(calibrations)}")
 #3119088655389
 
+from collections.abc import Callable
+from collections import deque
+
 #Part2
-def eval_leftright2(nums:list[int], ops:list[str])->int:
-      nums_cp = nums[::-1].copy()
-      for op in ops:
-            t1 = nums_cp.pop()
-            t2 = nums_cp.pop()
-            if op == 'x':
-                  nums_cp.append(t1*t2)
-            elif op == '+':
-                  nums_cp.append(t1+t2)
-            elif op == '||':
-                  nums_cp.append(int(str(t1)+str(t2)))
-      return nums_cp[0]
+def gen_possible_results(nums:list[int], ops:list[Callable[[int,int],int]])->list[int]:
+      if len(nums) < 2:
+            return set(nums)
+      possible_results = [nums[0]]
+      for i in range(1,len(nums)):
+            temp = []
 
+            while len(possible_results) > 0 and (cur := possible_results.pop()):
+                  temp.append(cur*nums[i])
+                  temp.append(cur+nums[i])
+                  temp.append(int(str(cur)+str(nums[i])))
+            possible_results = temp
 
-def gen_op_combinations2(n:int)->list[list[str]]:
-      if n == 0:
-            return [[]]
-      smaller_combinations = gen_op_combinations2(n-1)
-      combinations = []
-      for combo in smaller_combinations:
-            c1 = combo.copy()
-            c1.append('+')
-            c2 = combo.copy()
-            c2.append('x')
-            c3 = combo.copy()
-            c3.append('||')
-            combinations.append(c1)
-            combinations.append(c2)      
-            combinations.append(c3)
-      return combinations
+      return possible_results
 
 def solution2(inp_mat:list[tuple[int,list[int]]])->int:
       res = 0
-      ops_combo_cache:dict[int, list[list[str]]] = dict()
-      count = 0
+      operators = [(lambda x,y: x*y), (lambda x,y: x+y), (lambda x, y: int(str(x)+str(y)))]
       for target, nums in inp_mat:
-            operator_combos = []
-            if (len(nums) - 1) in ops_combo_cache:
-                  operator_combos = ops_combo_cache[len(nums)-1]
-            else:
-                  ops_combo_cache[len(nums)-1] = gen_op_combinations2(len(nums)-1)
-                  operator_combos = ops_combo_cache[len(nums)-1]
-
-            for combo in operator_combos:
-                  if eval_leftright2(nums, combo) == target:
-                        count += 1
-                        res += target
-                        break
-
+ 
+            possible_results = gen_possible_results(nums, operators)
+            if target in possible_results:
+                  res += target
       return res
 
-print(solution2(calibrations))
+
+print(f"The answer for Part2: {solution2(calibrations)}")
+#264184041398847
