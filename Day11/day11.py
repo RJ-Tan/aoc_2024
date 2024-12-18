@@ -106,110 +106,43 @@ print(solution1([125,17], 5))
 print(solution1([125,17], 25))
 """
 time_start = perf_counter()
-print(solution1(stones,40))
+print(f"The answer for Part1: {solution1(stones,25)}")
+#211306
 time_stop = perf_counter()
 print(f"Elapsed time: {time_stop-time_start}")
 
-import json
+
 #Part2
 def solution2(num_list:list[int], repeat:int)->int:
-    """ class Stone:
-        def __init__(self, val):
-            self.val:int = val
-            self.prev:Stone = None
-            self.next:Stone = None
-
-    res = 0
-
-    head = Stone(-1)
-    tail = Stone(-1)
-    head.next = tail
-    tail.prev = head
-    
-    cur = head
-    for num in num_list:
-        stone = Stone(num)
-        old_next = cur.next
-        cur.next = stone
-        stone.prev = cur
-        stone.next = old_next
-        old_next.prev = stone
-        cur = cur.next
-
-    remain = repeat
-    while (remain:=remain - 1) >= 0:
-
-        cur = head
-        while (cur:=cur.next) != tail:
-            
-            if len(str_num:=str(cur.val)) % 2 == 0:
-                prev_stone = cur.prev
-                next_stone = cur.next
-                new_stone1 = Stone(int(str_num[:len(str_num)//2]))
-                new_stone2 = Stone(int(str_num[len(str_num)//2:]))
-
-                prev_stone.next = new_stone1
-                new_stone1.prev = prev_stone
-
-                new_stone1.next = new_stone2
-                new_stone2.prev = new_stone1
-
-                new_stone2.next = next_stone
-                next_stone.prev = new_stone2
-
-                cur = new_stone2
-
-            elif cur.val == 0:
-                cur.val = 1
-            else:
-                cur.val = cur.val * 2024
-
-            
-    cur = head
-    while (cur:=cur.next) != tail:
-        res += 1
-
-    return res""" #attempt at using doubly linked list, time ended up worse than the recursive solution
-
-    
-    def blink(num:int, remain:int, zero25_cache:list[int] = None)->list[int]:
+    cache = dict()
+    def blink(num:int, remain:int)->int:
         if remain == 0:
-            return [num]
-        res = []
-            
-        if len(str_num:=str(num)) % 2 == 0:
-            left = blink(int(str_num[:len(str_num)//2]), remain-1, zero25_cache)
-            right = blink(int(str_num[len(str_num)//2:]), remain-1, zero25_cache)
-            res = [*left, *right]
+            return 1
+        
+        if (num, remain) in cache:
+            return cache[(num,remain)]
 
-        elif num == 0 and remain > 25 and zero25_cache!= None:
-            for cache_num in zero25_cache:
-                for blinked_nums in blink(cache_num,remain-25, zero25_cache):
-                    res.append(blinked_nums)
-        elif num == 0 and remain <= 25:
-            res = blink(1, remain-1, zero25_cache)
-        else:
-            res = blink(num*2024, remain-1, zero25_cache)
+        res = 0 
+        if len(str_num:=str(num)) % 2 == 0:
+            res  = blink(int(str_num[:len(str_num)//2]), remain-1) + blink(int(str_num[len(str_num)//2:]), remain-1)
+          
+        elif num == 0:
+            res = blink(1, remain-1)
        
+        else:
+            res = blink(num*2024, remain-1)
+        
+        cache[(num,remain)] = res
         return res
 
-    cache = blink(0,25) 
-    
-    new_num_list = []
+    res = 0
     for num in num_list:
-        
-        generated = blink(num, repeat, cache)
-        
-        for generated_num in generated:
-            new_num_list.append(generated_num)
-
+        res += blink(num, repeat)
    
-    """    with open('./Day11/data.json', 'w', encoding='utf-8') as f:
-        json.dump(blink_cache, f, ensure_ascii=False, indent=4)
-    print(new_num_list)"""
-    return len(new_num_list)
+    return res
     
 time_start = perf_counter()
-print(solution2(stones,40))
+print(f"The answer for Part2: {solution2(stones,75)}")
+#250783680217283
 time_stop = perf_counter()
 print(f"Elapsed time: {time_stop-time_start}")
